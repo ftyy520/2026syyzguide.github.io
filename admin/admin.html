@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 校园指南</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f1f5f9; padding: 20px; }
+        .login-box { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .login-box h1 { font-size: 20px; margin-bottom: 20px; text-align: center; }
+        .login-box input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+        .login-box button { width: 100%; padding: 12px; background: #4F46E5; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+        .login-box button:hover { background: #3730A3; }
+        .admin-panel { display: none; max-width: 1000px; margin: 0 auto; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .admin-header h1 { font-size: 22px; }
+        .logout-btn { padding: 8px 16px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .tab-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 20px; border: 1px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; font-size: 14px; }
+        .tab-btn.active { background: #4F46E5; color: white; border-color: #4F46E5; }
+        .pending-item { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
+        .pending-item h3 { font-size: 16px; margin-bottom: 8px; }
+        .pending-meta { font-size: 12px; color: #64748b; margin-bottom: 12px; }
+        .pending-meta .private-info { color: #ef4444; font-weight: 500; }
+        .pending-content { font-size: 14px; color: #475569; margin-bottom: 16px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+        .pending-actions { display: flex; gap: 8px; }
+        .approve-btn { padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        .reject-btn { padding: 8px 16px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        .empty-state { text-align: center; padding: 60px; color: #94a3b8; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #e2e8f0; }
+        .stat-card .number { font-size: 28px; font-weight: 700; color: #4F46E5; }
+        .stat-card .label { font-size: 12px; color: #64748b; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <!-- 登录 -->
+    <div class="login-box" id="login-box">
+        <h1>🔐 管理后台</h1>
+        <input type="password" id="admin-password" placeholder="输入管理密码">
+        <button onclick="adminLogin()">登录</button>
+    </div>
+
+    <!-- 管理面板 -->
+    <div class="admin-panel" id="admin-panel">
+        <div class="admin-header">
+            <h1>📋 内容审核管理</h1>
+            <button class="logout-btn" onclick="adminLogout()">退出登录</button>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="number" id="stat-pending">0</div>
+                <div class="label">待审核</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="stat-approved">0</div>
+                <div class="label">已通过</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="stat-rejected">0</div>
+                <div class="label">已拒绝</div>
+            </div>
+        </div>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="posts">帖子</button>
+            <button class="tab-btn" data-tab="comments">评论</button>
+            <button class="tab-btn" data-tab="replies">回复</button>
+        </div>
+
+        <div id="pending-list">
+            <div class="empty-state">暂无待审核内容</div>
+        </div>
+    </div>
+
+    <script>
+        // 配置 - 修改为你的 Worker URL
+        const API_BASE = 'https://your-worker.your-subdomain.workers.dev';
+        let adminToken = '';
+
+        function adminLogin() {
+            const password = document.getElementById('admin-password').value;
+            fetch(`${API_BASE}/api/admin/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    adminToken = data.token;
+                    document.getElementById('login-box').style.display = 'none';
+                    document.getElementById('admin-panel').style.display = 'block';
+                    loadPending('posts');
+                } else {
+                    alert('密码错误');
+                }
+            })
+            .catch(() => alert('连接失败'));
+        }
+
+        function adminLogout() {
+            adminToken = '';
+            document.getElementById('login-box').style.display = 'block';
+            document.getElementById('admin-panel').style.display = 'none';
+        }
+
+        // Tab 切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadPending(btn.dataset.tab);
+            });
+        });
+
+        function loadPending(type) {
+            fetch(`${API_BASE}/api/admin/pending?type=${type}`, {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                const list = document.getElementById('pending-list');
+                if (!data.items || data.items.length === 0) {
+                    list.innerHTML = '<div class="empty-state">暂无待审核内容 ✨</div>';
+                    return;
+                }
+                list.innerHTML = data.items.map(item => `
+                    <div class="pending-item">
+                        <h3>${item.title || '评论/回复'}</h3>
+                        <div class="pending-meta">
+                            <span>昵称: ${item.nickname} (${item.avatar})</span> · 
+                            <span class="private-info">年级: ${item.grade} | 班级: ${item.class_num}</span> · 
+                            <span>${new Date(item.created_at).toLocaleString()}</span>
+                        </div>
+                        <div class="pending-content">${item.content}</div>
+                        <div class="pending-actions">
+                            <button class="approve-btn" onclick="handleReview(${item.id}, '${type}', 'approve')">✓ 通过</button>
+                            <button class="reject-btn" onclick="handleReview(${item.id}, '${type}', 'reject')">✗ 拒绝</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Update stats
+                document.getElementById('stat-pending').textContent = data.pending_count || 0;
+                document.getElementById('stat-approved').textContent = data.approved_count || 0;
+                document.getElementById('stat-rejected').textContent = data.rejected_count || 0;
+            });
+        }
+
+        function handleReview(id, type, action) {
+            fetch(`${API_BASE}/api/admin/review`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({ id, type, action })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // 重新加载
+                    const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+                    loadPending(activeTab);
+                }
+            });
+        }
+
+        // 回车登录
+        document.getElementById('admin-password').addEventListener('keydown', e => {
+            if (e.key === 'Enter') adminLogin();
+        });
+    </script>
+</body>
+</html>
