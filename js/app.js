@@ -5,7 +5,7 @@
 // ===== 配置 =====
 const CONFIG = {
     // 修改为你的 Cloudflare Worker URL
-    API_BASE: 'https://school-guide-api.你的子域名.workers.dev',
+    API_BASE: 'https://syyz-api.18372606857.workers.dev',
     STORAGE_PREFIX: 'school_guide_',
 };
 
