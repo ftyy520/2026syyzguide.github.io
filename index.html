@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园新生指南</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ============ 欢迎弹窗 ============ -->
+    <div id="welcome-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-icon">🎓</div>
+                <h2>欢迎来到校园新生指南！</h2>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3>📖 这个网站能帮你什么？</h3>
+                    <ul>
+                        <li><strong>校园指南</strong> - 详细介绍学校各方面信息，助你快速融入</li>
+                        <li><strong>问答论坛</strong> - 有疑问？发帖提问，学长学姐来解答</li>
+                        <li><strong>校园地图</strong> - 交互式地图，认识校园每个角落</li>
+                        <li><strong>背景音乐</strong> - 浏览时可开启舒缓音乐</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h3>🎵 是否开启背景音乐？</h3>
+                    <div class="music-toggle-modal">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="modal-music-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">开启音乐</span>
+                    </div>
+                    <div class="music-select-modal" id="modal-music-select" style="display:none;">
+                        <select id="modal-music-choice">
+                            <option value="music/track1.mp3">轻音乐 - 清晨阳光</option>
+                            <option value="music/track2.mp3">钢琴曲 - 校园时光</option>
+                            <option value="music/track3.mp3">自然声 - 鸟语花香</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <label class="dont-show-again">
+                    <input type="checkbox" id="dont-show-again">
+                    <span>下次不再显示</span>
+                </label>
+                <button class="btn btn-primary" id="modal-close-btn">开始探索 →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 顶部导航栏 ============ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo" data-page="home">
+                <span class="logo-icon">🏫</span>
+                <span class="logo-text">校园指南</span>
+            </a>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#" class="nav-link active" data-page="home">
+                    <span class="nav-icon">🏠</span>
+                    <span>首页</span>
+                </a>
+                <a href="#" class="nav-link" data-page="guide">
+                    <span class="nav-icon">📖</span>
+                    <span>校园指南</span>
+                </a>
+                <a href="#" class="nav-link" data-page="forum">
+                    <span class="nav-icon">💬</span>
+                    <span>问答论坛</span>
+                </a>
+                <a href="#" class="nav-link" data-page="map">
+                    <span class="nav-icon">🗺️</span>
+                    <span>校园地图</span>
+                </a>
+                <a href="#" class="nav-link" data-page="more">
+                    <span class="nav-icon">⋯</span>
+                    <span>更多</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <button class="music-btn" id="music-toggle-btn" title="音乐播放器">
+                    <span class="music-icon">🎵</span>
+                </button>
+                <button class="menu-toggle" id="menu-toggle" aria-label="菜单">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============ 音乐播放器浮窗 ============ -->
+    <div class="music-player" id="music-player">
+        <div class="music-player-header">
+            <span>🎵 音乐播放器</span>
+            <button class="music-player-close" id="music-player-close">✕</button>
+        </div>
+        <div class="music-player-body">
+            <div class="music-info">
+                <div class="music-visualizer">
+                    <span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <span class="music-title" id="music-title">未播放</span>
+            </div>
+            <div class="music-controls">
+                <button class="music-ctrl-btn" id="music-prev">⏮</button>
+                <button class="music-ctrl-btn music-play-btn" id="music-play">▶</button>
+                <button class="music-ctrl-btn" id="music-next">⏭</button>
+            </div>
+            <div class="music-volume">
+                <span>🔊</span>
+                <input type="range" id="music-volume" min="0" max="100" value="50">
+            </div>
+            <select class="music-selector" id="music-selector">
+                <option value="music/track1.mp3">轻音乐 - 清晨阳光</option>
+                <option value="music/track2.mp3">钢琴曲 - 校园时光</option>
+                <option value="music/track3.mp3">自然声 - 鸟语花香</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ============ 主内容区域 ============ -->
+    <main class="main-content">
+        
+        <!-- ===== 首页 ===== -->
+        <section class="page active" id="page-home">
+            <div class="hero-section">
+                <div class="hero-bg"></div>
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <span class="hero-emoji">🎓</span>
+                        欢迎，新同学！
+                    </h1>
+                    <p class="hero-subtitle">这里是你了解学校的第一站，我们为你准备了全面的校园指南</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-lg" data-navigate="guide">开始了解 →</button>
+                        <button class="btn btn-outline btn-lg" data-navigate="forum">去提问 💬</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="features-grid">
+                    <div class="feature-card" data-navigate="guide">
+                        <div class="feature-icon">📖</div>
+                        <h3>校园指南</h3>
+                        <p>从入学报到到日常生活，全面介绍学校方方面面</p>
+                    </div>
+                    <div class="feature-card" data-navigate="forum">
+                        <div class="feature-icon">💬</div>
+                        <h3>问答论坛</h3>
+                        <p>有任何疑问都可以发帖提问，热心同学为你解答</p>
+                    </div>
+                    <div class="feature-card" data-navigate="map">
+                        <div class="feature-icon">🗺️</div>
+                        <h3>校园地图</h3>
+                        <p>交互式校园地图，帮你快速熟悉校园环境</p>
+                    </div>
+                    <div class="feature-card" data-navigate="more">
+                        <div class="feature-icon">🌟</div>
+                        <h3>更多内容</h3>
+                        <p>实用工具、快捷链接和其他有用资源</p>
+                    </div>
+                </div>
+
+                <!-- 最新动态 -->
+                <div class="section-block">
+                    <h2 class="section-title">📢 最新动态</h2>
+                    <div class="news-list">
+                        <div class="news-item">
+                            <span class="news-date">2024-09-01</span>
+                            <span class="news-tag new">新</span>
+                            <span class="news-text">网站正式上线！欢迎各位新同学~</span>
+                        </div>
+                        <div class="news-item">
+                            <span class="news-date">2024-09-01</span>
+                            <span class="news-tag">公告</span>
+                            <span class="news-text">如有建议或发现错误，欢迎在论坛反馈</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 校园指南页 ===== -->
+        <section class="page" id="page-guide">
+            <div class="container">
+                <div class="page-header">
+                    <h1>📖 校园指南</h1>
+                    <p>全面了解学校的方方面面</p>
+                </div>
+
+                <!-- 指南分类 -->
+                <div class="guide-categories">
+                    <button class="category-btn active" data-category="all">全部</button>
+                    <button class="category-btn" data-category="enrollment">入学报到</button>
+                    <button class="category-btn" data-category="academic">学习学术</button>
+                    <button class="category-btn" data-category="life">校园生活</button>
+                    <button class="category-btn" data-category="facility">设施服务</button>
+                    <button class="category-btn" data-category="activity">社团活动</button>
+                </div>
+
+                <!-- 指南文章列表 -->
+                <div class="guide-list" id="guide-list">
+                    <!-- 示例文章卡片 -->
+                    <article class="guide-card" data-category="enrollment" data-article="enrollment-guide">
+                        <div class="guide-card-header">
+                            <span class="guide-card-icon">📋</span>
+                            <span class="guide-card-category">入学报到</span>
+                        </div>
+                        <h3>新生入学报到全流程</h3>
+                        <p>从收到录取通知书开始，到完成报到的每一步详细指引...</p>
+                        <div class="guide-card-footer">
+                            <span class="guide-card-date">2024-08-15</span>
+                            <span class="guide-card-read">阅读全文 →</span>
+                        </div>
+                    </article>
+
+                    <article class="guide-card" data-category="life" data-article="dormitory-guide">
+                        <div class="guide-card-header">
+                            <span class="guide-card-icon">🏠</span>
+                            <span class="guide-card-category">校园生活</span>
+                        </div>
+                        <h3>宿舍生活指南</h3>
+                        <p>宿舍分配、生活用品、作息时间、室友相处...</p>
+                        <div class="guide-card-footer">
+                            <span class="guide-card-date">2024-08-16</span>
+                            <span class="guide-card-read">阅读全文 →</span>
+                        </div>
+                    </article>
+
+                    <article class="guide-card" data-category="academic" data-article="course-guide">
+                        <div class="guide-card-header">
+                            <span class="guide-card-icon">📚</span>
+                            <span class="guide-card-category">学习学术</span>
+                        </div>
+                        <h3>选课与学习攻略</h3>
+                        <p>如何选课、学习方法、考试安排、学分制度...</p>
+                        <div class="guide-card-footer">
+                            <span class="guide-card-date">2024-08-17</span>
+                            <span class="guide-card-read">阅读全文 →</span>
+                        </div>
+                    </article>
+
+                    <article class="guide-card" data-category="facility" data-article="facility-guide">
+                        <div class="guide-card-header">
+                            <span class="guide-card-icon">🏗️</span>
+                            <span class="guide-card-category">设施服务</span>
+                        </div>
+                        <h3>校园设施与服务</h3>
+                        <p>图书馆、食堂、体育馆、医务室等设施介绍...</p>
+                        <div class="guide-card-footer">
+                            <span class="guide-card-date">2024-08-18</span>
+                            <span class="guide-card-read">阅读全文 →</span>
+                        </div>
+                    </article>
+
+                    <article class="guide-card" data-category="activity" data-article="club-guide">
+                        <div class="guide-card-header">
+                            <span class="guide-card-icon">🎭</span>
+                            <span class="guide-card-category">社团活动</span>
+                        </div>
+                        <h3>社团与课外活动</h3>
+                        <p>丰富多彩的社团生活等你来探索...</p>
+                        <div class="guide-card-footer">
+                            <span class="guide-card-date">2024-08-19</span>
+                            <span class="guide-card-read">阅读全文 →</span>
+                        </div>
+                    </article>
+
+                    <article class="guide-card" data-category="life" data-article="food-guide">
+                        <div class="guide-card-header">
+                            <span class="guide-card-icon">🍜</span>
+                            <span class="guide-card-category">校园生活</span>
+                        </div>
+                        <h3>美食与餐饮指南</h3>
+                        <p>食堂推荐、周边美食、外卖攻略...</p>
+                        <div class="guide-card-footer">
+                            <span class="guide-card-date">2024-08-20</span>
+                            <span class="guide-card-read">阅读全文 →</span>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- 文章详情（动态显示） -->
+                <div class="article-detail" id="article-detail" style="display:none;">
+                    <button class="btn btn-back" id="back-to-guide">← 返回列表</button>
+                    <div class="article-content" id="article-content">
+                        <!-- 文章内容动态加载 -->
+                    </div>
+                    <!-- 评论区 -->
+                    <div class="comments-section">
+                        <h3 class="comments-title">💬 评论与补充</h3>
+                        <p class="comments-desc">欢迎补充信息或提出疑问，评论经审核后显示</p>
+                        
+                        <div class="comments-list" id="comments-list">
+                            <!-- 评论动态加载 -->
+                            <div class="comment-placeholder">
+                                <p>暂无评论，快来发表第一条吧！</p>
+                            </div>
+                        </div>
+
+                        <div class="comment-form">
+                            <h4>发表评论</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>昵称 *</label>
+                                    <input type="text" id="comment-nickname" placeholder="输入你的昵称" maxlength="20">
+                                </div>
+                                <div class="form-group">
+                                    <label>头像</label>
+                                    <div class="avatar-picker" id="comment-avatar-picker">
+                                        <span class="avatar-option selected" data-avatar="😊">😊</span>
+                                        <span class="avatar-option" data-avatar="😎">😎</span>
+                                        <span class="avatar-option" data-avatar="🤓">🤓</span>
+                                        <span class="avatar-option" data-avatar="😄">😄</span>
+                                        <span class="avatar-option" data-avatar="🥳">🥳</span>
+                                        <span class="avatar-option" data-avatar="😇">😇</span>
+                                        <span class="avatar-option" data-avatar="🤗">🤗</span>
+                                        <span class="avatar-option" data-avatar="💪">💪</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row" id="comment-info-row">
+                                <div class="form-group">
+                                    <label>年级 *</label>
+                                    <select id="comment-grade">
+                                        <option value="">选择年级</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>班级 *</label>
+                                    <select id="comment-class">
+                                        <option value="">选择班级</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>评论内容 *</label>
+                                <textarea id="comment-content" placeholder="写下你的评论..." rows="4" maxlength="500"></textarea>
+                                <span class="char-count"><span id="comment-char-count">0</span>/500</span>
+                            </div>
+                            <button class="btn btn-primary" id="submit-comment">提交评论</button>
+                            <p class="form-hint">* 年级班级信息仅管理员可见，不会公开显示</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 问答论坛页 ===== -->
+        <section class="page" id="page-forum">
+            <div class="container">
+                <div class="page-header">
+                    <h1>💬 问答论坛</h1>
+                    <p>有疑问？尽管问！学长学姐来帮忙</p>
+                    <button class="btn btn-primary" id="new-post-btn">✏️ 发布新帖</button>
+                </div>
+
+                <!-- 发帖表单 -->
+                <div class="post-form-container" id="post-form-container" style="display:none;">
+                    <div class="post-form">
+                        <h3>发布新帖子</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>昵称 *</label>
+                                <input type="text" id="post-nickname" placeholder="输入你的昵称" maxlength="20">
+                            </div>
+                            <div class="form-group">
+                                <label>头像</label>
+                                <div class="avatar-picker" id="post-avatar-picker">
+                                    <span class="avatar-option selected" data-avatar="😊">😊</span>
+                                    <span class="avatar-option" data-avatar="😎">😎</span>
+                                    <span class="avatar-option" data-avatar="🤓">🤓</span>
+                                    <span class="avatar-option" data-avatar="😄">😄</span>
+                                    <span class="avatar-option" data-avatar="🥳">🥳</span>
+                                    <span class="avatar-option" data-avatar="😇">😇</span>
+                                    <span class="avatar-option" data-avatar="🤗">🤗</span>
+                                    <span class="avatar-option" data-avatar="💪">💪</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row" id="post-info-row">
+                            <div class="form-group">
+                                <label>年级 *</label>
+                                <select id="post-grade">
+                                    <option value="">选择年级</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>班级 *</label>
+                                <select id="post-class">
+                                    <option value="">选择班级</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>标题 *</label>
+                            <input type="text" id="post-title" placeholder="简洁描述你的问题" maxlength="50">
+                        </div>
+                        <div class="form-group">
+                            <label>内容 *</label>
+                            <textarea id="post-content" placeholder="详细描述你的问题..." rows="6" maxlength="1000"></textarea>
+                            <span class="char-count"><span id="post-char-count">0</span>/1000</span>
+                        </div>
+                        <div class="form-group">
+                            <label>分类</label>
+                            <select id="post-category">
+                                <option value="general">综合问题</option>
+                                <option value="enrollment">入学相关</option>
+                                <option value="academic">学习学术</option>
+                                <option value="life">校园生活</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" id="submit-post">提交帖子</button>
+                            <button class="btn btn-outline" id="cancel-post">取消</button>
+                        </div>
+                        <p class="form-hint">* 帖子经审核后显示，年级班级信息仅管理员可见</p>
+                    </div>
+                </div>
+
+                <!-- 帖子列表 -->
+                <div class="forum-filters">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="general">综合</button>
+                    <button class="filter-btn" data-filter="enrollment">入学</button>
+                    <button class="filter-btn" data-filter="academic">学术</button>
+                    <button class="filter-btn" data-filter="life">生活</button>
+                    <button class="filter-btn" data-filter="other">其他</button>
+                </div>
+
+                <div class="posts-list" id="posts-list">
+                    <div class="loading-placeholder">
+                        <div class="loading-spinner"></div>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+
+                <!-- 帖子详情（动态显示） -->
+                <div class="post-detail" id="post-detail" style="display:none;">
+                    <button class="btn btn-back" id="back-to-forum">← 返回论坛</button>
+                    <div class="post-detail-content" id="post-detail-content">
+                        <!-- 动态加载 -->
+                    </div>
+                    <!-- 回复区 -->
+                    <div class="replies-section">
+                        <h3>回复</h3>
+                        <div class="replies-list" id="replies-list">
+                            <!-- 动态加载 -->
+                        </div>
+                        <div class="reply-form">
+                            <h4>发表回复</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>昵称 *</label>
+                                    <input type="text" id="reply-nickname" placeholder="输入你的昵称" maxlength="20">
+                                </div>
+                                <div class="form-group">
+                                    <label>头像</label>
+                                    <div class="avatar-picker" id="reply-avatar-picker">
+                                        <span class="avatar-option selected" data-avatar="😊">😊</span>
+                                        <span class="avatar-option" data-avatar="😎">😎</span>
+                                        <span class="avatar-option" data-avatar="🤓">🤓</span>
+                                        <span class="avatar-option" data-avatar="😄">😄</span>
+                                        <span class="avatar-option" data-avatar="🥳">🥳</span>
+                                        <span class="avatar-option" data-avatar="😇">😇</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row" id="reply-info-row">
+                                <div class="form-group">
+                                    <label>年级 *</label>
+                                    <select id="reply-grade">
+                                        <option value="">选择年级</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>班级 *</label>
+                                    <select id="reply-class">
+                                        <option value="">选择班级</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>回复内容 *</label>
+                                <textarea id="reply-content" placeholder="写下你的回复..." rows="4" maxlength="500"></textarea>
+                            </div>
+                            <button class="btn btn-primary" id="submit-reply">提交回复</button>
+                            <p class="form-hint">* 回复经审核后显示，年级班级信息仅管理员可见</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 校园地图页 ===== -->
+        <section class="page" id="page-map">
+            <div class="container">
+                <div class="page-header">
+                    <h1>🗺️ 校园地图</h1>
+                    <p>点击地图上的标记查看详细信息</p>
+                </div>
+
+                <div class="map-container">
+                    <div class="map-controls">
+                        <button class="map-ctrl-btn" id="map-zoom-in">+</button>
+                        <button class="map-ctrl-btn" id="map-zoom-out">−</button>
+                        <button class="map-ctrl-btn" id="map-reset">⟲</button>
+                    </div>
+                    <div class="map-wrapper" id="map-wrapper">
+                        <div class="map-canvas" id="map-canvas">
+                            <!-- 校园地图SVG或图片 -->
+                            <svg viewBox="0 0 1000 700" class="campus-map-svg" id="campus-map">
+                                <!-- 背景 -->
+                                <rect width="1000" height="700" fill="#e8f5e9"/>
+                                
+                                <!-- 道路 -->
+                                <path d="M0 350 L1000 350" stroke="#bdbdbd" stroke-width="20" fill="none"/>
+                                <path d="M500 0 L500 700" stroke="#bdbdbd" stroke-width="20" fill="none"/>
+                                <path d="M200 350 L200 0" stroke="#e0e0e0" stroke-width="10" fill="none"/>
+                                <path d="M800 350 L800 700" stroke="#e0e0e0" stroke-width="10" fill="none"/>
+                                
+                                <!-- 建筑物 -->
+                                <!-- 教学楼 -->
+                                <rect x="80" y="100" width="160" height="100" rx="5" fill="#42a5f5" class="map-building" data-building="teaching"/>
+                                <text x="160" y="155" text-anchor="middle" fill="white" font-size="14" font-weight="bold">教学楼</text>
+                                
+                                <!-- 图书馆 -->
+                                <rect x="400" y="80" width="200" height="120" rx="5" fill="#7e57c2" class="map-building" data-building="library"/>
+                                <text x="500" y="145" text-anchor="middle" fill="white" font-size="14" font-weight="bold">图书馆</text>
+                                
+                                <!-- 食堂 -->
+                                <rect x="700" y="100" width="150" height="100" rx="5" fill="#ff7043" class="map-building" data-building="canteen"/>
+                                <text x="775" y="155" text-anchor="middle" fill="white" font-size="14" font-weight="bold">食堂</text>
+                                
+                                <!-- 体育馆 -->
+                                <ellipse cx="200" cy="520" rx="100" ry="70" fill="#66bb6a" class="map-building" data-building="gym"/>
+                                <text x="200" y="525" text-anchor="middle" fill="white" font-size="14" font-weight="bold">体育馆</text>
+                                
+                                <!-- 宿舍楼 -->
+                                <rect x="650" y="450" width="200" height="150" rx="5" fill="#ffa726" class="map-building" data-building="dormitory"/>
+                                <text x="750" y="530" text-anchor="middle" fill="white" font-size="14" font-weight="bold">宿舍楼</text>
+                                
+                                <!-- 行政楼 -->
+                                <rect x="400" y="420" width="150" height="100" rx="5" fill="#78909c" class="map-building" data-building="admin-building"/>
+                                <text x="475" y="475" text-anchor="middle" fill="white" font-size="14" font-weight="bold">行政楼</text>
+                                
+                                <!-- 操场 -->
+                                <ellipse cx="160" cy="350" rx="60" ry="40" fill="#aed581" class="map-building" data-building="playground" stroke="#7cb342" stroke-width="3"/>
+                                <text x="160" y="355" text-anchor="middle" fill="#33691e" font-size="11" font-weight="bold">操场</text>
+                                
+                                <!-- 校门 -->
+                                <rect x="470" y="660" width="60" height="30" rx="3" fill="#5d4037" class="map-building" data-building="gate"/>
+                                <text x="500" y="680" text-anchor="middle" fill="white" font-size="10" font-weight="bold">校门</text>
+
+                                <!-- 树木装饰 -->
+                                <circle cx="320" cy="280" r="15" fill="#4caf50" opacity="0.6"/>
+                                <circle cx="350" cy="300" r="12" fill="#388e3c" opacity="0.6"/>
+                                <circle cx="600" cy="380" r="15" fill="#4caf50" opacity="0.6"/>
+                                <circle cx="900" cy="300" r="12" fill="#388e3c" opacity="0.6"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- 建筑详情面板 -->
+                    <div class="map-info-panel" id="map-info-panel">
+                        <div class="map-info-header">
+                            <h3 id="map-info-title">点击建筑查看详情</h3>
+                            <button class="map-info-close" id="map-info-close">✕</button>
+                        </div>
+                        <div class="map-info-body" id="map-info-body">
+                            <p>请点击地图上的彩色建筑区域来查看对应的详细介绍。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 更多页面 ===== -->
+        <section class="page" id="page-more">
+            <div class="container">
+                <div class="page-header">
+                    <h1>🌟 更多</h1>
+                    <p>实用工具与其他资源</p>
+                </div>
+
+                <div class="more-grid">
+                    <div class="more-card" id="show-welcome-again">
+                        <div class="more-card-icon">📋</div>
+                        <h3>网站介绍</h3>
+                        <p>重新查看网站功能介绍弹窗</p>
+                    </div>
+                    <div class="more-card">
+                        <div class="more-card-icon">🔗</div>
+                        <h3>学校官网</h3>
+                        <p>前往学校官方网站</p>
+                    </div>
+                    <div class="more-card">
+                        <div class="more-card-icon">📅</div>
+                        <h3>校历</h3>
+                        <p>查看本学年校历安排</p>
+                    </div>
+                    <div class="more-card">
+                        <div class="more-card-icon">📞</div>
+                        <h3>常用电话</h3>
+                        <p>学校各部门联系方式</p>
+                    </div>
+                    <div class="more-card">
+                        <div class="more-card-icon">🚌</div>
+                        <h3>交通指南</h3>
+                        <p>周边公交、地铁信息</p>
+                    </div>
+                    <div class="more-card">
+                        <div class="more-card-icon">💡</div>
+                        <h3>反馈建议</h3>
+                        <p>帮助我们改进网站</p>
+                    </div>
+                </div>
+
+                <!-- 关于本站 -->
+                <div class="section-block">
+                    <h2 class="section-title">关于本站</h2>
+                    <div class="about-card">
+                        <p>本网站由学长/学姐自发创建和维护，旨在帮助每一位新同学更快地适应校园生活。</p>
+                        <p>网站内容持续更新中，如果你发现了错误或有任何建议，欢迎在论坛中反馈！</p>
+                        <p class="about-version">版本 1.0.0 | 最后更新：2024年9月</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ 底部 ============ -->
+    <footer class="footer">
+        <div class="container">
+            <p>🏫 校园新生指南 · 用心为每一位新同学服务</p>
+            <p class="footer-sub">本站内容仅供参考，具体信息以学校官方通知为准</p>
+        </div>
+    </footer>
+
+    <!-- ============ Toast 提示 ============ -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ============ 加载音频 ============ -->
+    <audio id="bg-music" loop preload="none"></audio>
+
+    <!-- ============ 脚本 ============ -->
+    <script src="js/app.js"></script>
+    <script src="js/music.js"></script>
+    <script src="js/forum.js"></script>
+</body>
+</html>
